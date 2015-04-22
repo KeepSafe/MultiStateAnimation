@@ -13,6 +13,10 @@ repositories {
     mavenCentral()
 }
 
+dependencies {
+    compile project(':library')
+}
+
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.2"

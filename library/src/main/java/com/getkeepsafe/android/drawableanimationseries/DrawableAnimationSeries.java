@@ -182,7 +182,7 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
      * The id of the animation that will be started as soon as the current animation
      * finishes, or null if no animation is queued.
      */
-    private AnimationSection mNextSection;
+    private String mQueuedSectionId;
     private Context mContext;
     private NotifyingAnimationDrawable mCurrentDrawable;
     /**
@@ -385,6 +385,14 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
     }
 
     /**
+     * If the currently playing animation is a transition, return the ID if the
+     * section that this is transitioning from. Otherwise return null.
+     */
+    public String getTransitioningFromId() {
+        return mTransitioningFromId;
+    }
+
+    /**
      * Play an animation drawable.
      *
      * @param drawable The drawable to play.
@@ -421,7 +429,7 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
                 mCurrentDrawable.isFinished()) {
             transitionNow(id);
         } else {
-            mNextSection = mSectionsById.get(id);
+            mQueuedSectionId = id;
         }
     }
 
@@ -448,7 +456,7 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
             mTransitioningFromId = null;
         }
         mCurrentSection = newSection;
-        mNextSection = null;
+        mQueuedSectionId = null;
 
         playDrawable(mCurrentDrawable);
     }
@@ -462,10 +470,10 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
             mListener.onAnimationFinished();
         }
         if (mTransitioningFromId != null) {
-            playDrawable(mCurrentSection.loadDrawable());
             mTransitioningFromId = null;
-        } else if (mNextSection != null) {
-            transitionNow(mNextSection.getId());
+            playDrawable(mCurrentSection.loadDrawable());
+        } else if (mQueuedSectionId != null) {
+            transitionNow(mQueuedSectionId);
         }
     }
 }

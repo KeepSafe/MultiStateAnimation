@@ -1,0 +1,98 @@
+{
+    "pending": {
+        "oneshot": true,
+        "frames": [
+            "loading_animation_start_000"
+        ]
+    },
+    "loading": {
+        "frame_duration": 33,
+        "oneshot": false,
+        "transitions_from": {
+            "pending": {
+                "frame_duration": 33,
+                "frames": [
+                    "loading_animation_start_000",
+                    "loading_animation_start_001",
+                    "loading_animation_start_002",
+                    "loading_animation_start_003",
+                    "loading_animation_start_004",
+                    "loading_animation_start_005",
+                    "loading_animation_start_006",
+                    "loading_animation_start_007",
+                    "loading_animation_start_008",
+                    "loading_animation_start_009",
+                    "loading_animation_start_010",
+                    "loading_animation_start_011",
+                    "loading_animation_start_012",
+                    "loading_animation_start_013",
+                    "loading_animation_start_014",
+                    "loading_animation_start_015",
+                    "loading_animation_start_016",
+                    "loading_animation_start_017",
+                    "loading_animation_start_018",
+                    "loading_animation_start_019",
+                    "loading_animation_start_020",
+                    "loading_animation_start_021",
+                    "loading_animation_start_022",
+                    "loading_animation_start_023",
+                    "loading_animation_start_024"
+                ]
+            }
+        },
+        "frames": [
+            "loading_animation_work_000",
+            "loading_animation_work_001",
+            "loading_animation_work_002",
+            "loading_animation_work_003",
+            "loading_animation_work_004",
+            "loading_animation_work_005",
+            "loading_animation_work_006",
+            "loading_animation_work_007",
+            "loading_animation_work_008",
+            "loading_animation_work_009",
+            "loading_animation_work_010",
+            "loading_animation_work_011",
+            "loading_animation_work_012",
+            "loading_animation_work_013",
+            "loading_animation_work_014"
+        ]
+    },
+    "finished": {
+        "oneshot": true,
+        "transitions_from": {
+            "loading": {
+                "frame_duration": 33,
+                "frames": [
+                    "loading_animation_end_000",
+                    "loading_animation_end_001",
+                    "loading_animation_end_002",
+                    "loading_animation_end_003",
+                    "loading_animation_end_004",
+                    "loading_animation_end_005",
+                    "loading_animation_end_006",
+                    "loading_animation_end_007",
+                    "loading_animation_end_008",
+                    "loading_animation_end_009",
+                    "loading_animation_end_010",
+                    "loading_animation_end_011",
+                    "loading_animation_end_012",
+                    "loading_animation_end_013",
+                    "loading_animation_end_014",
+                    "loading_animation_end_015",
+                    "loading_animation_end_016",
+                    "loading_animation_end_017",
+                    "loading_animation_end_018",
+                    "loading_animation_end_019",
+                    "loading_animation_end_020",
+                    "loading_animation_end_021",
+                    "loading_animation_end_022",
+                    "loading_animation_end_023"
+                ]
+            }
+        },
+        "frames": [
+            "loading_animation_end_023"    
+        ]
+    }
+}

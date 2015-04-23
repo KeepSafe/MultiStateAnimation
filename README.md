@@ -13,20 +13,27 @@ Animations are defined using a JSON file included as a `raw` resource. Each
 animation consists of a series of states. A state has some metadata and a list
 of frames to draw. A state can also define transitions from other states. A
 transition is a list of frames that will be played when moving directly from a
-specified state to the state where the transition is defined. 
+specified state to the state where the transition is defined.
 
 ### Example JSON animation definition
+
+The following example is annotated with javascript-style comments. Note that
+because the Android JSON parser is used in this project,
+**comments in JSON files are not supported**!
 
 ```javascript
 
     {
         // The ID is used in code to specify a section to play
         "first_section": { 
-            // If true, this section will play once and stop. Otherwise it will loop indefinitely.
+            // If true, this section will play once and stop. Otherwise it
+            // will loop indefinitely.
             "oneshot": false, 
-            // The number of milliseconds that each frame of this section will play
+            // The number of milliseconds that each frame of this section will
+            // play
             "frame_duration": 33, 
-            // Each frame is the name of an image resource. They will be played in the order defined.
+            // Each frame is the name of an image resource. They will be
+            // played in the order defined.
             "frames": [
                 "frame_01",
                 "frame_02"
@@ -43,18 +50,27 @@ specified state to the state where the transition is defined.
             ],
             // An optional set of transitions.
             "transitions_from": {
-                // The frames of a transition will be played before playing the
-                // normal frames of this section when transitioning. In this
-                // case, the frames for this transition will play if
+                // The frames of a transition will be played before playing
+                // the normal frames of this section when transitioning. In
+                // this case, the frames for this transition will play if
                 // "first_section" is playing when
-                // queueTransition("second_section") is called.
+                // queueTransition("second_section") is called
                 "first_section": {
                     // Each section and transition can optionally define their
                     // own frame duration.
                     "frame_duration": 33,
                     "frames": [
-                            "spinner_intro_001",
-                            "spinner_intro_002"
+                            "first_to_second_transition_001",
+                            "first_to_second_transition_002"
+                    ]
+                }
+                // As a special case, a transition ID of "" is a transition
+                // from nothing. It will play if the associated section is the
+                // first to ever play.
+                "": {
+                    "frames": [
+                        "nothing_to_second_001",
+                        "nothing_to_second_002"
                     ]
                 }
             }
@@ -65,7 +81,10 @@ specified state to the state where the transition is defined.
 
 ### Java API
 
-From your Android code, create an instance of `DrawableAnimationSeries`. You will typically use the constructor function `fromJSONResource` .  you can use `queueTransition` and `transitionNow` from the GUI thread to start playing the animations.
+From your Android code, create an instance of `DrawableAnimationSeries`. You
+will typically use the constructor function `fromJSONResource` .  you can use
+`queueTransition` and `transitionNow` from the GUI thread to start playing the
+animations.
 
 | Method | Description |
 |--------|-------------|
@@ -81,7 +100,9 @@ From your Android code, create an instance of `DrawableAnimationSeries`. You wil
 
 ### Example Usage
 
-See the [main Activity](samples/src/main/java/com/getkeepsafe/android/drawableanimationseries/samples/ThreeStateSampleActivity.java) in the [sample application](samples/) for an example.
+See the [main Activity](samples/src/main/java/com/getkeepsafe/android/drawable
+animationseries/samples/ThreeStateSampleActivity.java)  in the [sample
+application](samples/) for an example.
 
 ## License
 

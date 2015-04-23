@@ -185,7 +185,6 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
      * finishes, or null if no animation is queued.
      */
     private String mQueuedSectionId;
-    private Context mContext;
     private NotifyingAnimationDrawable mCurrentDrawable;
 
     /**
@@ -201,20 +200,15 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
     private Map<String, AnimationSection> mSectionsById;
 
     /**
-     * @param context the Application context.
      * @param view    If not null, animations will be set as the background of this view.
      */
-    public DrawableAnimationSeries(Context context, View view) {
-        mContext = context;
+    public DrawableAnimationSeries(View view) {
         mSectionsById = new HashMap<String, AnimationSection>();
         mView = view;
     }
 
-    /**
-     * @param context The application Context.
-     */
-    public DrawableAnimationSeries(Context context) {
-        this(context, null);
+    public DrawableAnimationSeries() {
+        this(null);
     }
 
     /**
@@ -236,39 +230,49 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
      * Creates a new DrawableAnimationSeries object from a json string.
      * The document must have the following structure:
      * <pre>
-     * {
-     *    "section_name": {
-     *        "oneshot": false,
-     *        "frame_duration": 33,
-     *        "frames": [
-     *            "frame_01",
-     *            "frame_02"
-     *        ],
-     *        "transitions_from": {
-     *            "other_section_id": {
-     *                "frame_duration": 33,
-     *                "frames": [
-     *                    "spinner_intro_001",
-     *                    "spinner_intro_002"
-     *                ]
-     *            }
-     *        }
-     *    }
-     *    "other_section_id": {
-     *        "oneshot": true,
-     *        "frames": [
-     *          "other_frame_01"
-     *        ]
-     *    }
-     * }
+     *  {
+     *      "first_section": {
+     *          "oneshot": false,
+     *          "frame_duration": 33,
+     *          "frames": [
+     *              "frame_01",
+     *              "frame_02"
+     *          ],
+     *
+     *      }
+     *      "second_section": {
+     *          "oneshot": true,
+     *          "frames": [
+     *              "other_frame_01"
+     *          ],
+     *          "transitions_from": {
+     *              "first_section": {
+     *                  "frame_duration": 33,
+     *                  "frames": [
+     *                          "first_to_second_transition_001",
+     *                          "first_to_second_transition_002"
+     *                  ]
+     *              }
+     *              "": {
+     *                  "frames": [
+     *                      "nothing_to_second_001",
+     *                      "nothing_to_second_002"
+     *                  ]
+     *              }
+     *          }
+     *      }
+     *  }
      * </pre>
+     * The key for each entry is the ID of the state.
      * If "oneshot" is false, the animation will play in a loop instead of stopping at the last
      * frame.
      * "frame_duration" is the number of milliseconds that each frame in the "frame" list will play.
-     * It defaults to 33 if not given.
+     *      It defaults to 33 if not given.
      * "frames" is a list of string resource ID names that must correspond to a drawable resource.
-     * "transitions_from" is optional, and is a list of animations that play when transitioning to the
-     * current state from another given state.
+     * "transitions_from" is optional, and is a set of animations that play when transitioning to
+     *      the current state from another given state. A transition will play when the ID of the
+     *      current state matches the transition's key and the state is transitioning to the state
+     *      in which the transition is defined.
      *
      * @param context The application Context.
      * @param view    If not null, animations will be set as the background of this view.
@@ -286,7 +290,7 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
         }
 
         // Parse
-        DrawableAnimationSeries drawableSeries = new DrawableAnimationSeries(context, view);
+        DrawableAnimationSeries drawableSeries = new DrawableAnimationSeries(view);
         JSONObject root = new JSONObject(builder.toString());
 
         // The root is a an object with keys that are sequence IDs
@@ -450,10 +454,11 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
         // If the section has a transition from the old section, play the
         // transition before the main animation.
         NotifyingAnimationDrawable transition = mCurrentSection == null ?
-                null : newSection.getTransition(mCurrentSection.getId());
+                newSection.getTransition(""):
+                newSection.getTransition(mCurrentSection.getId());
         if (transition != null) {
             mCurrentDrawable = transition;
-            mTransitioningFromId = mCurrentSection.getId();
+            mTransitioningFromId = mCurrentSection == null ? "" : mCurrentSection.getId();
         } else {
             mCurrentDrawable = newSection.loadDrawable();
             mTransitioningFromId = null;

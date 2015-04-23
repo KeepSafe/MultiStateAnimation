@@ -2,6 +2,8 @@ package com.getkeepsafe.android.drawableanimationseries;
 
 import android.graphics.drawable.AnimationDrawable;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Extends AnimationDrawable to signal an event when the animation finishes.
  * This class behaves identically to a normal AnimationDrawable, but contains a method for
@@ -17,7 +19,7 @@ public class NotifyingAnimationDrawable extends AnimationDrawable {
     }
 
     private boolean mFinished = false;
-    private OnAnimationFinishedListener mListener;
+    private WeakReference<OnAnimationFinishedListener> mListener = new WeakReference<OnAnimationFinishedListener>(null);
 
     /**
      * @param drawable The frames data from animation will be copied into this instance. The animation object will be unchanged.
@@ -34,10 +36,10 @@ public class NotifyingAnimationDrawable extends AnimationDrawable {
     }
 
     /**
-     * @return The registered animation listener.
+     * @return The registered animation listener, or null if none exists.
      */
     public OnAnimationFinishedListener getAnimationFinishedListener() {
-        return mListener;
+        return mListener.get();
     }
 
     /**
@@ -48,7 +50,7 @@ public class NotifyingAnimationDrawable extends AnimationDrawable {
      * @param listener The listener to register.
      */
     public void setAnimationFinishedListener(OnAnimationFinishedListener listener) {
-        this.mListener = listener;
+        this.mListener = new WeakReference<OnAnimationFinishedListener>(listener);
     }
 
     /**
@@ -65,8 +67,8 @@ public class NotifyingAnimationDrawable extends AnimationDrawable {
         if (idx != 0 && idx == getNumberOfFrames() - 1) {
             if (!mFinished || !isOneShot()) {
                 mFinished = true;
-                if (mListener != null) {
-                    mListener.onAnimationFinished();
+                if (mListener.get() != null) {
+                    mListener.get().onAnimationFinished();
                 }
             }
         }

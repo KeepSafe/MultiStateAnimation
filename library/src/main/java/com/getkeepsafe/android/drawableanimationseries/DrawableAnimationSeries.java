@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -176,8 +177,9 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
         void onAnimationStarting();
     }
 
-    private AnimationSeriesListener mListener;
+    private WeakReference<AnimationSeriesListener> mListener = new WeakReference<AnimationSeriesListener>(null);
     private AnimationSection mCurrentSection;
+
     /**
      * The id of the animation that will be started as soon as the current animation
      * finishes, or null if no animation is queued.
@@ -185,6 +187,7 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
     private String mQueuedSectionId;
     private Context mContext;
     private NotifyingAnimationDrawable mCurrentDrawable;
+
     /**
      * The id of the previous section if a transition is currently playing, or null
      * id no transition is playing.
@@ -342,10 +345,10 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
     }
 
     /**
-     * Returns the registered listener.
+     * Returns the registered listener, if one exists.
      */
     public AnimationSeriesListener getSeriesAnimationFinishedListener() {
-        return mListener;
+        return mListener.get();
     }
 
     /**
@@ -356,7 +359,7 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
      * @param listener The listener to register.
      */
     public void setSeriesAnimationFinishedListener(AnimationSeriesListener listener) {
-        this.mListener = listener;
+        this.mListener = new WeakReference<AnimationSeriesListener>(listener);
     }
 
     /**
@@ -402,8 +405,8 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
         mCurrentDrawable = drawable;
         mCurrentDrawable.setAnimationFinishedListener(this);
 
-        if (mListener != null) {
-            mListener.onAnimationStarting();
+        if (mListener.get() != null) {
+            mListener.get().onAnimationStarting();
         }
 
         if (mView != null) {
@@ -462,12 +465,12 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
     }
 
     /**
-     * Calls the listener callback if one was registered and transitions to the next state.
+     * Callback that is run when a playing animation finishes.
      */
     @Override
     public void onAnimationFinished() {
-        if (mListener != null) {
-            mListener.onAnimationFinished();
+        if (mListener.get() != null) {
+            mListener.get().onAnimationFinished();
         }
         if (mTransitioningFromId != null) {
             mTransitioningFromId = null;

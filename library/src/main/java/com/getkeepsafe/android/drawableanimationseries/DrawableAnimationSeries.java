@@ -429,8 +429,8 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
      * if it is not the current animation.
      */
     public void queueTransition(String id) {
+        if (id.equals(getCurrentSectionId())) return;
         if (mCurrentSection == null ||
-                !getCurrentSectionId().equals(id) &&
                 mCurrentDrawable != null &&
                 mCurrentDrawable.isOneShot() &&
                 mCurrentDrawable.isFinished()) {
@@ -467,6 +467,23 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
         mQueuedSectionId = null;
 
         playDrawable(mCurrentDrawable);
+    }
+
+    /**
+     * Clear any currently playing animation. This will cause a "" transition to
+     * be played before the next queued section, if one was defined for .
+     */
+    public void clearAnimation() {
+        if (mCurrentDrawable != null) {
+            mCurrentDrawable.stop();
+        }
+        if (mView != null) {
+            mView.setBackgroundResource(0);
+        }
+        mCurrentDrawable = null;
+        mCurrentSection = null;
+        mQueuedSectionId = null;
+        mTransitioningFromId = null;
     }
 
     /**

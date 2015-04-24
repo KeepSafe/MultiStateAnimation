@@ -2,6 +2,8 @@
 
 Android library to create complex multi-state animations.
 
+![Demo animation](docs/images/demo1.gif)
+
 ## Overview
 
 A class that allows for complex multi-state animations using Android's
@@ -21,9 +23,9 @@ specified state to the state where the transition is defined.
 
 ### Example JSON animation definition
 
-The following example is annotated with javascript-style comments. Note that
+For illustrative purposes, the following example is annotated with javascript-style comments. However,
 because the Android JSON parser is used in this project,
-**comments in JSON files are not supported**!
+**comments in JSON resource files are not supported**!
 
 ```javascript
 

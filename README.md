@@ -1,4 +1,4 @@
-# Android-DrawableAnimationSeries
+# MultiStateAnimation
 
 Android library to create complex multi-state animations.
 
@@ -85,7 +85,7 @@ because the Android JSON parser is used in this project,
 
 ### Java API
 
-From your Android code, create an instance of `DrawableAnimationSeries`. You
+From your Android code, create an instance of `MultiStateAnimation`. You
 will typically use the constructor function `fromJSONResource` .  you can use
 `queueTransition` and `transitionNow` from the GUI thread to start playing the
 animations.
@@ -93,7 +93,7 @@ animations.
 | Method | Description |
 |--------|-------------|
 | `int currentSectionDuration()` | Calculates the total duration of the current animation section, including the transition if applicable. |
-| `static DrawableAnimationSeries fromJsonResource(Context context, View view, int resid)` | Creates a new DrawableAnimationSeries object from a json string. This constructor function takes a `Context`, a `View` that will have it's background set to the playing animations, and the resource ID of the JSON file defining the animation. |
+| `static MultiStateAnimation fromJsonResource(Context context, View view, int resid)` | Creates a new MultiStateAnimation object from a json string. This constructor function takes a `Context`, a `View` that will have it's background set to the playing animations, and the resource ID of the JSON file defining the animation. |
 | `void queueTransition(String id)` | Queues a section to start as soon as the current animation finishes. If no animation is currently playing, the queued transition will start immediately. |
 | `void transitionNow(String id)` | Starts a specific section without waiting for the current animation to finish. |
 | `AnimationDrawable getCurrentDrawable()` | Returns the currently playing animation, or null if no animation has ever played. |

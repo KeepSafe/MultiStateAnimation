@@ -2,7 +2,7 @@
 
 Android library to create complex multi-state animations.
 
-![Demo animation](docs/images/demo1.gif)
+![Demo animation](docs/images/demo_1.gif)
 
 ## Overview
 

@@ -57,7 +57,7 @@ public class ThreeStateSampleActivity extends Activity implements MultiStateAnim
     @Override
     public void onAnimationFinished() {
         if (mAnimationSeries.getCurrentDrawable().isOneShot()) {
-            mCurrentStateTextView.setText("Finished playing: " + mAnimationSeries.getCurrentSectionId());
+            mCurrentStateTextView.setText("Showing: " + mAnimationSeries.getCurrentSectionId());
         }
     }
 

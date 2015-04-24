@@ -200,6 +200,8 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
     private Map<String, AnimationSection> mSectionsById;
 
     /**
+     * Create a new instance and automatically set animations as the background of the given view.
+     *
      * @param view    If not null, animations will be set as the background of this view.
      */
     public MultiStateAnimation(View view) {
@@ -207,6 +209,16 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
         mView = view;
     }
 
+    /**
+     * Create an instance without giving a view to hold the animations.
+     * <p/>
+     * Note that due to a limitation in AnimationDrawable, you must set
+     * created animations as the image or background of a View in an
+     * onAnimationStarting listener, otherwise the animation will not
+     * advance.
+     *
+     * @see com.getkeepsafe.android.multistateanimation.MultiStateAnimation.AnimationSeriesListener#onAnimationStarting()
+     */
     public MultiStateAnimation() {
         this(null);
     }
@@ -228,6 +240,7 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
 
     /**
      * Creates a new MultiStateAnimation object from a json string.
+     * <p/>
      * The document must have the following structure:
      * <pre>
      *  {
@@ -264,15 +277,19 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
      *  }
      * </pre>
      * The key for each entry is the ID of the state.
-     * If "oneshot" is false, the animation will play in a loop instead of stopping at the last
-     * frame.
-     * "frame_duration" is the number of milliseconds that each frame in the "frame" list will play.
-     *      It defaults to 33 if not given.
-     * "frames" is a list of string resource ID names that must correspond to a drawable resource.
-     * "transitions_from" is optional, and is a set of animations that play when transitioning to
+     * <dl>
+     *     <dt>"oneshot"</dt>
+     *     <dd>If false, the animation will play in a loop instead of stopping at the last
+     *      frame.</dd>
+     *     <dt>"frame_duration"</dt><dd>The number of milliseconds that each frame in the "frame"
+     *     list will play. It defaults to 33 (30fps) if not given.</dd>
+     *     <dt>"frames"</dt><dd>A list of string resource ID names that must correspond to a
+     *     drawable resource.</dd>
+     *     <dt>"transitions_from"</dt><dd>Optional, and is a set of animations that play when transitioning to
      *      the current state from another given state. A transition will play when the ID of the
      *      current state matches the transition's key and the state is transitioning to the state
-     *      in which the transition is defined.
+     *      in which the transition is defined.</dd>
+     * </dl>
      *
      * @param context The application Context.
      * @param view    If not null, animations will be set as the background of this view.
@@ -378,7 +395,8 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
     }
 
     /**
-     * Returns the currently playing animation, or null if no animation has ever played.
+     * Returns the currently playing animation. If no animation has played since this object was
+     * created or since a call to {@link #clearAnimation()}, null is returned.
      */
     public AnimationDrawable getCurrentDrawable() {
         return mCurrentDrawable;
@@ -392,8 +410,8 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
     }
 
     /**
-     * If the currently playing animation is a transition, return the ID if the
-     * section that this is transitioning from. Otherwise return null.
+     * If the currently playing animation is a transition, return the ID of the
+     * section that is being transitioned from. Otherwise return null.
      */
     public String getTransitioningFromId() {
         return mTransitioningFromId;
@@ -425,8 +443,10 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
 
     /**
      * Queues a section to start as soon as the current animation finishes.
-     * If no animation is playing, the queued animation will be started immediately
-     * if it is not the current animation.
+     * If no animation is playing, the queued animation will be started immediately.
+     * Queueing a transition to the currently playing section has no effect.
+     *
+     * @param id The name of the section that will be queued.
      */
     public void queueTransition(String id) {
         if (id.equals(getCurrentSectionId())) return;
@@ -442,8 +462,11 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
 
     /**
      * Starts a specific section without waiting for the current animation to finish.
-     * If the last registered animation is currently playing, or no animations have been
-     * registered, no action is taken.
+     * If there is a defined transition from the current section to the new one, the
+     * transition will be played, followed immediately by the regular section animation.
+     * Transitioning to the currently playing section will restart the animation.
+     *
+     * @param id The name of the section that will be played.
      */
     public void transitionNow(String id) {
         AnimationSection newSection = mSectionsById.get(id);

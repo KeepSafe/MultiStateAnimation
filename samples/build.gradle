@@ -24,7 +24,7 @@ android {
     defaultConfig {
         minSdkVersion 1
         targetSdkVersion 21
-        applicationId "com.getkeepsafe.android.drawableanimationseries.samples"
+        applicationId "com.getkeepsafe.android.multistateanimation.samples"
         versionCode 1
         versionName "0.1.0"
     }

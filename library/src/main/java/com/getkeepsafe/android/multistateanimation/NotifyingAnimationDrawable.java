@@ -1,4 +1,4 @@
-package com.getkeepsafe.android.drawableanimationseries;
+package com.getkeepsafe.android.multistateanimation;
 
 import android.graphics.drawable.AnimationDrawable;
 

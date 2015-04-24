@@ -1,4 +1,4 @@
-package com.getkeepsafe.android.drawableanimationseries;
+package com.getkeepsafe.android.multistateanimation;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -26,8 +26,8 @@ import java.util.Map;
  *
  * @author AJ Alt
  */
-public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAnimationFinishedListener {
-    private final static String TAG = "DrawableAnimationSeries";
+public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimationFinishedListener {
+    private final static String TAG = "MultiStateAnimation";
     public static final int DEFAULT_FRAME_DURATION = 33;
     public static final boolean DEFAULT_ONESHOT_STATUS = true;
 
@@ -202,12 +202,12 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
     /**
      * @param view    If not null, animations will be set as the background of this view.
      */
-    public DrawableAnimationSeries(View view) {
+    public MultiStateAnimation(View view) {
         mSectionsById = new HashMap<String, AnimationSection>();
         mView = view;
     }
 
-    public DrawableAnimationSeries() {
+    public MultiStateAnimation() {
         this(null);
     }
 
@@ -227,7 +227,7 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
     }
 
     /**
-     * Creates a new DrawableAnimationSeries object from a json string.
+     * Creates a new MultiStateAnimation object from a json string.
      * The document must have the following structure:
      * <pre>
      *  {
@@ -277,10 +277,10 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
      * @param context The application Context.
      * @param view    If not null, animations will be set as the background of this view.
      * @param resid   The resource ID the the raw json document.
-     * @return A new DrawableAnimationSeries.
+     * @return A new MultiStateAnimation.
      * @throws JSONException
      */
-    public static DrawableAnimationSeries fromJsonResource(Context context, View view, int resid) throws JSONException, IOException {
+    public static MultiStateAnimation fromJsonResource(Context context, View view, int resid) throws JSONException, IOException {
         // Read the resource into a string
         BufferedReader r = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(resid)));
         StringBuilder builder = new StringBuilder();
@@ -290,7 +290,7 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
         }
 
         // Parse
-        DrawableAnimationSeries drawableSeries = new DrawableAnimationSeries(view);
+        MultiStateAnimation drawableSeries = new MultiStateAnimation(view);
         JSONObject root = new JSONObject(builder.toString());
 
         // The root is a an object with keys that are sequence IDs
@@ -327,16 +327,16 @@ public class DrawableAnimationSeries implements NotifyingAnimationDrawable.OnAni
     }
 
     /**
-     * Create a DrawableAnimationSeries from a JSON resource without a connected View.
+     * Create a MultiStateAnimation from a JSON resource without a connected View.
      *
      * @param context the Application context.
      * @param resid   The resource ID the the raw json document.
-     * @return A new DrawableAnimationSeries instance.
+     * @return A new MultiStateAnimation instance.
      * @throws JSONException
      * @throws IOException
      */
-    public static DrawableAnimationSeries fromJsonResource(Context context, int resid) throws JSONException, IOException {
-        return DrawableAnimationSeries.fromJsonResource(context, null, resid);
+    public static MultiStateAnimation fromJsonResource(Context context, int resid) throws JSONException, IOException {
+        return MultiStateAnimation.fromJsonResource(context, null, resid);
     }
 
     /**

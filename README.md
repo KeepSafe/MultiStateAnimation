@@ -104,7 +104,7 @@ animations.
 
 ### Example Usage
 
-See the [main Activity](samples/src/main/java/com/getkeepsafe/android/drawableanimationseries/samples/ThreeStateSampleActivity.java)
+See the [main Activity](samples/src/main/java/com/getkeepsafe/android/multistateanimation/samples/ThreeStateSampleActivity.java)
  in the [sample application](samples/) for an example.
 
 ## License

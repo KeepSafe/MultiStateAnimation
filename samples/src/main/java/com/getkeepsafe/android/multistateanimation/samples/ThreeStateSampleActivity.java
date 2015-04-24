@@ -1,4 +1,4 @@
-package com.getkeepsafe.android.drawableanimationseries.samples;
+package com.getkeepsafe.android.multistateanimation.samples;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -6,15 +6,15 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.getkeepsafe.android.drawableanimationseries.DrawableAnimationSeries;
+import com.getkeepsafe.android.multistateanimation.MultiStateAnimation;
 
 import org.json.JSONException;
 
 import java.io.IOException;
 
 
-public class ThreeStateSampleActivity extends Activity implements DrawableAnimationSeries.AnimationSeriesListener {
-    private DrawableAnimationSeries mAnimationSeries;
+public class ThreeStateSampleActivity extends Activity implements MultiStateAnimation.AnimationSeriesListener {
+    private MultiStateAnimation mAnimationSeries;
     private TextView mCurrentStateTextView;
 
     @Override
@@ -25,7 +25,7 @@ public class ThreeStateSampleActivity extends Activity implements DrawableAnimat
         mCurrentStateTextView = (TextView) findViewById(R.id.current_state_textview);
         ImageView animationView = (ImageView) findViewById(R.id.animationImageView);
         try {
-            mAnimationSeries = DrawableAnimationSeries.fromJsonResource(animationView.getContext(), animationView, R.raw.sample_animation);
+            mAnimationSeries = MultiStateAnimation.fromJsonResource(animationView.getContext(), animationView, R.raw.sample_animation);
         } catch (JSONException e) {
             throw new RuntimeException("Invalid sync animation JSON file format.");
         } catch (IOException e) {

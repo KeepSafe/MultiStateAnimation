@@ -5,7 +5,11 @@ Android library to create complex multi-state animations.
 ## Overview
 
 A class that allows for complex multi-state animations using Android's
-`AnimationDrawable`.
+`AnimationDrawable`. It supports both oneshot and looped animation sections.
+Transitions between sections can be defined, and will play automatically when
+moving between the defined states. State transitions can be queued
+asynchronously, and the library will take car of smoothly starting the next
+animation once the current section is complete.
 
 ## Usage
 
@@ -100,22 +104,21 @@ animations.
 
 ### Example Usage
 
-See the [main Activity](samples/src/main/java/com/getkeepsafe/android/drawable
-animationseries/samples/ThreeStateSampleActivity.java)  in the [sample
-application](samples/) for an example.
+See the [main Activity](samples/src/main/java/com/getkeepsafe/android/drawableanimationseries/samples/ThreeStateSampleActivity.java)
+ in the [sample application](samples/) for an example.
 
 ## License
 
-   Copyright 2015 KeepSafe
+    Copyright 2015 KeepSafe
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.

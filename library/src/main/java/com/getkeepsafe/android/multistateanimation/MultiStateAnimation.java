@@ -1,6 +1,6 @@
 package com.getkeepsafe.android.multistateanimation;
 
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Build;
@@ -422,13 +422,14 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
      *
      * @param drawable The drawable to play.
      */
-    @SuppressLint("NewApi")
+    @TargetApi(16)
     private void playDrawable(NotifyingAnimationDrawable drawable) {
         mCurrentDrawable = drawable;
         mCurrentDrawable.setAnimationFinishedListener(this);
 
-        if (mListener.get() != null) {
-            mListener.get().onAnimationStarting();
+        AnimationSeriesListener listener = mListener.get();
+        if (listener != null) {
+            listener.onAnimationStarting();
         }
 
         if (mView != null) {
@@ -471,7 +472,7 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
     public void transitionNow(String id) {
         AnimationSection newSection = mSectionsById.get(id);
         if (newSection == null) {
-            throw new RuntimeException("transitionNow called with invalid id: " + id);
+            throw new IllegalArgumentException("transitionNow called with invalid id: " + id);
         }
 
         // If the section has a transition from the old section, play the
@@ -514,8 +515,9 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
      */
     @Override
     public void onAnimationFinished() {
-        if (mListener.get() != null) {
-            mListener.get().onAnimationFinished();
+        AnimationSeriesListener listener = mListener.get();
+        if (listener != null) {
+            listener.onAnimationFinished();
         }
         if (mTransitioningFromId != null) {
             mTransitioningFromId = null;

@@ -67,8 +67,9 @@ public class NotifyingAnimationDrawable extends AnimationDrawable {
         if (idx != 0 && idx == getNumberOfFrames() - 1) {
             if (!mFinished || !isOneShot()) {
                 mFinished = true;
-                if (mListener.get() != null) {
-                    mListener.get().onAnimationFinished();
+                OnAnimationFinishedListener listener = mListener.get();
+                if (listener != null) {
+                    listener.onAnimationFinished();
                 }
             }
         }

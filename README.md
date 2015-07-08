@@ -13,6 +13,14 @@ moving between the defined states. State transitions can be queued
 asynchronously, and the library will take car of smoothly starting the next
 animation once the current section is complete.
 
+## Installation
+
+Add the following dependency to your gradle build file:
+
+    dependencies {  
+        compile 'com.getkeepsafe.android.multistateanimation:library:1.0.0'
+    }
+
 ## Usage
 
 Animations are defined using a JSON file included as a `raw` resource. Each
@@ -85,33 +93,47 @@ because the Android JSON parser is used in this project,
 
 ```
 
-### Java API
+### Java example usage
 
 From your Android code, create an instance of `MultiStateAnimation`. You
-will typically use the constructor function `fromJSONResource` .  you can use
-`queueTransition` and `transitionNow` from the GUI thread to start playing the
-animations.
+will typically use the constructor function `fromJSONResource`. 
 
-| Method | Description |
-|--------|-------------|
-| `int currentSectionDuration()` | Calculates the total duration of the current animation section, including the transition if applicable. |
-| `static MultiStateAnimation fromJsonResource(Context context, View view, int resid)` | Creates a new MultiStateAnimation object from a json string. This constructor function takes a `Context`, a `View` that will have it's background set to the playing animations, and the resource ID of the JSON file defining the animation. |
-| `void queueTransition(String id)` | Queues a section to start as soon as the current animation finishes. If no animation is currently playing, the queued transition will start immediately. |
-| `void transitionNow(String id)` | Starts a specific section without waiting for the current animation to finish. |
-| `AnimationDrawable getCurrentDrawable()` | Returns the currently playing animation, or null if no animation has ever played. |
-| `String getCurrentSectionId()` | Return the ID of the current section if one is playing, or null otherwise. |
-| `String getTransitioningFromId()` | If the currently playing animation is a transition, return the ID if the section that this is transitioning from. Return null if no animation is playing, or the currently playing animation is not a transition. |
-| `void setSeriesAnimationFinishedListener(AnimationSeriesListener listener)` | Registers a listener that will be called when a running animation finishes. |
-| `AnimationSeriesListener getSeriesAnimationFinishedListener()` | Returns the registered listener. |
+```java
 
-### Example Usage
+    MultiStateAnimation animationSeries;
+    ImageView animationView = (ImageView) findViewById(R.id.animationImageView);
+    
+    try {
+        animationSeries = MultiStateAnimation.fromJsonResource(animationView.getContext(), animationView, R.raw.sample_animation);
+    } catch (JSONException e) {
+        throw new RuntimeException("Invalid animation JSON file format.");
+    } catch (IOException e) {
+        throw new RuntimeException("Cannot Read JSON animation resource");
+    }
+    
+```
 
-See the [main Activity](samples/src/main/java/com/getkeepsafe/android/multistateanimation/samples/ThreeStateSampleActivity.java)
+Once the animation object is created, you can use `queueTransition` and `transitionNow` 
+from the GUI thread to start playing the animations.
+
+```java
+
+    animationSeries.queueTransition("first_section");
+    
+```
+
+### Sample application
+
+See the [main Activity](samples/src/main/java/com/getkeepsafe/android/multistateanimation/samples/ThreeStateSampleActivity.java) and the [json animation definition](samples/res/raw/sample_animation.json)
  in the [sample application](samples/) for an example.
+
+## Java API
+
+Check out [the Javadocs](http://keepsafe.github.io/MultiStateAnimation/) for more API details.
 
 ## License
 
-    Copyright 2015 KeepSafe
+    Copyright 2015 KeepSafe Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

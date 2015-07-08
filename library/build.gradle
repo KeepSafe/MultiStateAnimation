@@ -1,18 +1,21 @@
 apply plugin: 'com.android.library'
 
+group = GROUP
+version = VERSION_NAME
+
 repositories {
     mavenCentral()
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 22
+    buildToolsVersion '22.0.1'
 
     defaultConfig {
         minSdkVersion 1
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionCode 1
-        versionName "1.0"
+        versionName '1.0.0'
     }
 
     sourceSets {
@@ -31,4 +34,4 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
-apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
+apply from: file('../gradle/gradle-mvn-push.gradle')

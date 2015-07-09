@@ -8,10 +8,6 @@ import android.widget.TextView;
 
 import com.getkeepsafe.android.multistateanimation.MultiStateAnimation;
 
-import org.json.JSONException;
-
-import java.io.IOException;
-
 
 public class ThreeStateSampleActivity extends Activity implements MultiStateAnimation.AnimationSeriesListener {
     private MultiStateAnimation mAnimationSeries;
@@ -24,13 +20,7 @@ public class ThreeStateSampleActivity extends Activity implements MultiStateAnim
 
         mCurrentStateTextView = (TextView) findViewById(R.id.current_state_textview);
         ImageView animationView = (ImageView) findViewById(R.id.animationImageView);
-        try {
-            mAnimationSeries = MultiStateAnimation.fromJsonResource(animationView.getContext(), animationView, R.raw.sample_animation);
-        } catch (JSONException e) {
-            throw new RuntimeException("Invalid sync animation JSON file format.");
-        } catch (IOException e) {
-            throw new RuntimeException("Cannot Read JSON sync animation Resource");
-        }
+        mAnimationSeries = MultiStateAnimation.fromJsonResource(animationView.getContext(), animationView, R.raw.sample_animation);
 
         mAnimationSeries.setSeriesAnimationFinishedListener(this);
         mCurrentStateTextView.setText("Not started");

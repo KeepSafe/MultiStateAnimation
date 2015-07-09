@@ -100,16 +100,9 @@ will typically use the constructor function `fromJSONResource`.
 
 ```java
 
-    MultiStateAnimation animationSeries;
-    ImageView animationView = (ImageView) findViewById(R.id.animationImageView);
-    
-    try {
-        animationSeries = MultiStateAnimation.fromJsonResource(animationView.getContext(), animationView, R.raw.sample_animation);
-    } catch (JSONException e) {
-        throw new RuntimeException("Invalid animation JSON file format.");
-    } catch (IOException e) {
-        throw new RuntimeException("Cannot Read JSON animation resource");
-    }
+    ImageView view = (ImageView) findViewById(R.id.animationImageView);
+    MultiStateAnimation animationSeries = MultiStateAnimation.fromJsonResource(view.getContext(), view, R.raw.sample_animation);
+
     
 ```
 

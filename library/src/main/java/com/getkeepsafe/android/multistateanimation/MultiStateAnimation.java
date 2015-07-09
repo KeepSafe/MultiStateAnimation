@@ -202,7 +202,7 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
     /**
      * Create a new instance and automatically set animations as the background of the given view.
      *
-     * @param view    If not null, animations will be set as the background of this view.
+     * @param view If not null, animations will be set as the background of this view.
      */
     public MultiStateAnimation(View view) {
         mSectionsById = new HashMap<String, AnimationSection>();
@@ -278,66 +278,74 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
      * </pre>
      * The key for each entry is the ID of the state.
      * <dl>
-     *     <dt>"oneshot"</dt>
-     *     <dd>If false, the animation will play in a loop instead of stopping at the last
-     *      frame.</dd>
-     *     <dt>"frame_duration"</dt><dd>The number of milliseconds that each frame in the "frame"
-     *     list will play. It defaults to 33 (30fps) if not given.</dd>
-     *     <dt>"frames"</dt><dd>A list of string resource ID names that must correspond to a
-     *     drawable resource.</dd>
-     *     <dt>"transitions_from"</dt><dd>Optional, and is a set of animations that play when transitioning to
-     *      the current state from another given state. A transition will play when the ID of the
-     *      current state matches the transition's key and the state is transitioning to the state
-     *      in which the transition is defined.</dd>
+     * <dt>"oneshot"</dt>
+     * <dd>If false, the animation will play in a loop instead of stopping at the last
+     * frame.</dd>
+     * <dt>"frame_duration"</dt><dd>The number of milliseconds that each frame in the "frame"
+     * list will play. It defaults to 33 (30fps) if not given.</dd>
+     * <dt>"frames"</dt><dd>A list of string resource ID names that must correspond to a
+     * drawable resource.</dd>
+     * <dt>"transitions_from"</dt><dd>Optional, and is a set of animations that play when transitioning to
+     * the current state from another given state. A transition will play when the ID of the
+     * current state matches the transition's key and the state is transitioning to the state
+     * in which the transition is defined.</dd>
      * </dl>
      *
      * @param context The application Context.
      * @param view    If not null, animations will be set as the background of this view.
      * @param resid   The resource ID the the raw json document.
      * @return A new MultiStateAnimation.
-     * @throws JSONException
+     * @throws RuntimeException
      */
-    public static MultiStateAnimation fromJsonResource(Context context, View view, int resid) throws JSONException, IOException {
+    public static MultiStateAnimation fromJsonResource(Context context, View view, int resid) {
         // Read the resource into a string
         BufferedReader r = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(resid)));
         StringBuilder builder = new StringBuilder();
         String line;
-        while ((line = r.readLine()) != null) {
-            builder.append(line);
+        try {
+            while ((line = r.readLine()) != null) {
+                builder.append(line);
+            }
+        } catch (IOException ignored) {
+            throw new RuntimeException("Cannot Read JSON sync animation Resource");
         }
 
         // Parse
         MultiStateAnimation drawableSeries = new MultiStateAnimation(view);
-        JSONObject root = new JSONObject(builder.toString());
+        try {
+            JSONObject root = new JSONObject(builder.toString());
 
-        // The root is a an object with keys that are sequence IDs
-        for (Iterator<String> iter = root.keys(); iter.hasNext();) {
-            String id = iter.next();
-            JSONObject obj = root.getJSONObject(id);
-            int frameDuration = obj.optInt("frame_duration", DEFAULT_FRAME_DURATION);
-            boolean isOneShot = obj.optBoolean("oneshot", DEFAULT_ONESHOT_STATUS);
-            JSONArray frames = obj.getJSONArray("frames");
-            AnimationDrawableLoader loader = new AnimationDrawableLoader(context, frameDuration, isOneShot, jsonArrayToArray(frames));
-            AnimationSection section = new AnimationSection(id, loader);
+            // The root is a an object with keys that are sequence IDs
+            for (Iterator<String> iter = root.keys(); iter.hasNext(); ) {
+                String id = iter.next();
+                JSONObject obj = root.getJSONObject(id);
+                int frameDuration = obj.optInt("frame_duration", DEFAULT_FRAME_DURATION);
+                boolean isOneShot = obj.optBoolean("oneshot", DEFAULT_ONESHOT_STATUS);
+                JSONArray frames = obj.getJSONArray("frames");
+                AnimationDrawableLoader loader = new AnimationDrawableLoader(context, frameDuration, isOneShot, jsonArrayToArray(frames));
+                AnimationSection section = new AnimationSection(id, loader);
 
-            JSONObject transitions_from;
-            if (obj.has("transitions_from")) {
-                transitions_from = obj.getJSONObject("transitions_from");
-            } else {
-                transitions_from = new JSONObject();
+                JSONObject transitions_from;
+                if (obj.has("transitions_from")) {
+                    transitions_from = obj.getJSONObject("transitions_from");
+                } else {
+                    transitions_from = new JSONObject();
+                }
+
+                // The optional "transitions" entry is another list of objects
+                for (Iterator<String> transition_iter = transitions_from.keys(); transition_iter.hasNext(); ) {
+                    String from = transition_iter.next();
+
+                    JSONObject t_obj = transitions_from.getJSONObject(from);
+                    frameDuration = t_obj.optInt("frame_duration", DEFAULT_FRAME_DURATION);
+                    frames = t_obj.getJSONArray("frames");
+                    loader = new AnimationDrawableLoader(context, frameDuration, true, jsonArrayToArray(frames));
+                    section.addTransition(from, loader);
+                }
+                drawableSeries.addSection(section);
             }
-
-            // The optional "transitions" entry is another list of objects
-            for (Iterator<String> transition_iter = transitions_from.keys(); transition_iter.hasNext();) {
-                String from = transition_iter.next();
-
-                JSONObject t_obj = transitions_from.getJSONObject(from);
-                frameDuration = t_obj.optInt("frame_duration", DEFAULT_FRAME_DURATION);
-                frames = t_obj.getJSONArray("frames");
-                loader = new AnimationDrawableLoader(context, frameDuration, true, jsonArrayToArray(frames));
-                section.addTransition(from, loader);
-            }
-            drawableSeries.addSection(section);
+        } catch (JSONException ignored) {
+            throw new RuntimeException("Invalid sync animation JSON file format.");
         }
 
         return drawableSeries;
@@ -453,8 +461,8 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
         if (id.equals(getCurrentSectionId())) return;
         if (mCurrentSection == null ||
                 mCurrentDrawable != null &&
-                mCurrentDrawable.isOneShot() &&
-                mCurrentDrawable.isFinished()) {
+                        mCurrentDrawable.isOneShot() &&
+                        mCurrentDrawable.isFinished()) {
             transitionNow(id);
         } else {
             mQueuedSectionId = id;
@@ -478,7 +486,7 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
         // If the section has a transition from the old section, play the
         // transition before the main animation.
         NotifyingAnimationDrawable transition = mCurrentSection == null ?
-                newSection.getTransition(""):
+                newSection.getTransition("") :
                 newSection.getTransition(mCurrentSection.getId());
         if (transition != null) {
             mCurrentDrawable = transition;

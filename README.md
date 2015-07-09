@@ -135,6 +135,8 @@ Then a `MultiStateAnimationOjbect` can be created in Java:
 
 ```
 
+Included in the repo is a [Python 3 script](scripts/generate_animation_json.py) that can assist in generating the JSON for an animation.
+
 ### Playing animations
 
 Once the animation object is created via one of the above methods, you can use `queueTransition` and `transitionNow` 

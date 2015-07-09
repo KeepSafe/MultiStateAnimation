@@ -18,7 +18,7 @@ animation once the current section is complete.
 Add the following dependency to your gradle build file:
 
     dependencies {  
-        compile 'com.getkeepsafe.android.multistateanimation:library:1.0.0'
+        compile 'com.getkeepsafe.android.multistateanimation:library:1.1.0'
     }
 
 ## Usage

@@ -1,37 +1,49 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.getkeepsafe.android.multistateanimation.samples.ThreeStateSampleActivity">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                tools:context="com.getkeepsafe.android.multistateanimation.samples.ThreeStateSampleActivity">
 
     <ImageView
+        android:id="@+id/animationImageView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/animationImageView"
         android:layout_above="@+id/current_state_textview"
-        android:layout_centerHorizontal="true" />
+        android:layout_toLeftOf="@+id/next_state_btn"
+        android:layout_toStartOf="@+id/next_state_btn"
+        tools:src="@drawable/loading_animation_end_023"/>
 
+
+    <ImageView
+        android:id="@+id/animationImageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/current_state_textview"
+        android:layout_toEndOf="@+id/next_state_btn"
+        android:layout_toRightOf="@+id/next_state_btn"
+        tools:src="@drawable/pending_animation_099"/>
 
     <TextView
+        android:id="@+id/current_state_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/current_state_textview"
         android:layout_above="@+id/next_state_btn"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="45dp" />
+        android:layout_marginTop="45dp"/>
 
 
     <Button
+        android:id="@+id/next_state_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/next_state_btn_text"
-        android:id="@+id/next_state_btn"
-        android:onClick="onNextStateBtnClick"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="45dp" />
+        android:layout_marginTop="45dp"
+        android:onClick="onNextStateBtnClick"
+        android:text="@string/next_state_btn_text"/>
+
 </RelativeLayout>

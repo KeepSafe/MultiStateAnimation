@@ -22,65 +22,98 @@ Add the following dependency to your gradle build file:
     }
 
 ## Usage
-
-Animations are defined using a JSON file included as a `raw` resource. Each
-animation consists of a series of states. A state has some metadata and a list
+Each animation consists of a series of states. A state has some metadata and a list
 of frames to draw. A state can also define transitions from other states. A
 transition is a list of frames that will be played when moving directly from a
 specified state to the state where the transition is defined.
 
-### Example JSON animation definition
+An animation can be defined either with a JSON file included as a `raw` resource, 
+or directly in Java code using builders.
 
-For illustrative purposes, the following example is annotated with javascript-style comments. However,
-because the Android JSON parser is used in this project,
-**comments in JSON resource files are not supported**!
+### Defining an animation with Java code
+
+```java
+
+    // The ID is used in code to specify a section to play
+    MultiStateAnimation.SectionBuilder firstSection = new MultiStateAnimation.SectionBuilder("first_section")
+        // If true, this section will play once and stop. Otherwise it
+        // will loop indefinitely.
+        .setOneshot(false)
+        // The number of milliseconds that each frame of this section will
+        // play
+        .setFrameDuration(33)
+        // Each frame is the name of an image resource. They will be
+        // played in the order added.
+        .addFrame(R.drawable.frame_01)
+        .addFrame(R.drawable.frame_02);
+
+    // The frames of a transition will be played before playing
+    // the normal frames of this section when transitioning. In
+    // this case, the frames for this transition will play if
+    // "first_section" is playing when queueTransition("second_section") 
+    // is called
+    MultiStateAnimation.TransitionBuilder transitionFromFirst = new MultiStateAnimation.TransitionBuilder()
+        .setFrameDuration(33)
+        .addFrame(R.drawable.first_to_second_transition_001)
+        .addFrame(R.drawable.first_to_second_transition_002)
+        .addFrame(R.drawable.first_to_second_transition_003);
+
+    // As a special case, a transition ID of "" is a transition
+    // from nothing. It will play if the associated section is the
+    // first to ever play.
+    MultiStateAnimation.TransitionBuilder transitionFromNothing = new MultiStateAnimation.TransitionBuilder()
+        .addFrame(R.drawable.nothing_to_second_001)
+        .addFrame(R.drawable.nothing_to_second_002);
+
+    // A section with a single frame and "oneshot" set to true is
+    // equivalent to a static image
+    MultiStateAnimation.SectionBuilder secondSection = new MultiStateAnimation.SectionBuilder("second_section")
+        .setOneshot(true)
+        .addTransition("first_section", transitionFromFirst)
+        .addTransition("", transitionFromNothing)
+        .addFrame(R.drawable.other_frame_01);
+
+    // Animation should be given an View that will be used to display the animation.
+    ImageView view = (ImageView) findViewById(R.id.animationImageView);
+    MultiStateAnimation animation = new MultiStateAnimation.Builder(view)
+        .addSection(startSection)
+        .addSection(loadingSection)
+        .addSection(endSection)
+        .build(context);
+
+```
+
+### Defining an animation using JSON
+
+The following JSON file defines the same animation as the above Java code.
 
 ```javascript
 
     {
-        // The ID is used in code to specify a section to play
         "first_section": { 
-            // If true, this section will play once and stop. Otherwise it
-            // will loop indefinitely.
             "oneshot": false, 
-            // The number of milliseconds that each frame of this section will
-            // play
             "frame_duration": 33, 
-            // Each frame is the name of an image resource. They will be
-            // played in the order defined.
             "frames": [
                 "frame_01",
                 "frame_02"
             ],
-
+    
         }
-
-        // A section with a single frame and "oneshot" set to true is
-        // equivalent to a static image.
+    
         "second_section": {
             "oneshot": true,
             "frames": [
                 "other_frame_01"
             ],
-            // An optional set of transitions.
             "transitions_from": {
-                // The frames of a transition will be played before playing
-                // the normal frames of this section when transitioning. In
-                // this case, the frames for this transition will play if
-                // "first_section" is playing when
-                // queueTransition("second_section") is called
                 "first_section": {
-                    // Each section and transition can optionally define their
-                    // own frame duration.
                     "frame_duration": 33,
                     "frames": [
                             "first_to_second_transition_001",
-                            "first_to_second_transition_002"
+                            "first_to_second_transition_002",
+                            "first_to_second_transition_003"
                     ]
                 }
-                // As a special case, a transition ID of "" is a transition
-                // from nothing. It will play if the associated section is the
-                // first to ever play.
                 "": {
                     "frames": [
                         "nothing_to_second_001",
@@ -93,20 +126,18 @@ because the Android JSON parser is used in this project,
 
 ```
 
-### Java example usage
-
-From your Android code, create an instance of `MultiStateAnimation`. You
-will typically use the constructor function `fromJSONResource`. 
+Then a `MultiStateAnimationOjbect` can be created in Java:
 
 ```java
 
     ImageView view = (ImageView) findViewById(R.id.animationImageView);
-    MultiStateAnimation animationSeries = MultiStateAnimation.fromJsonResource(view.getContext(), view, R.raw.sample_animation);
+    MultiStateAnimation animationSeries = MultiStateAnimation.fromJsonResource(context, view, R.raw.sample_animation);
 
-    
 ```
 
-Once the animation object is created, you can use `queueTransition` and `transitionNow` 
+### Playing animations
+
+Once the animation object is created via one of the above methods, you can use `queueTransition` and `transitionNow` 
 from the GUI thread to start playing the animations.
 
 ```java

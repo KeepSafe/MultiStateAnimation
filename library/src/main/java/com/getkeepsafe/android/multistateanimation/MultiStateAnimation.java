@@ -14,8 +14,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -48,12 +50,18 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
             mContext = context;
             mFrameDuration = frameDuration;
             mIsOneShot = isOneShot;
-
             mFrameIds = new int[frameNames.length];
 
             for (int i = 0; i < frameNames.length; i++) {
-                mFrameIds[i] = mContext.getResources().getIdentifier(frameNames[i], "drawable", mContext.getPackageName());
+                mFrameIds[i] = getDrawableResourceId(mContext, frameNames[i]);
             }
+        }
+
+        public AnimationDrawableLoader(Context context, int frameDuration, boolean isOneShot, int[] frameIds) {
+            mContext = context;
+            mFrameDuration = frameDuration;
+            mIsOneShot = isOneShot;
+            mFrameIds = frameIds;
         }
 
         public NotifyingAnimationDrawable load() {
@@ -205,7 +213,7 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
      * @param view If not null, animations will be set as the background of this view.
      */
     public MultiStateAnimation(View view) {
-        mSectionsById = new HashMap<String, AnimationSection>();
+        mSectionsById = new HashMap<>();
         mView = view;
     }
 
@@ -224,6 +232,13 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
     }
 
     /**
+     * Load the id for a drawable resource from its name
+     */
+    private static int getDrawableResourceId(Context context, String name) {
+        return context.getResources().getIdentifier(name, "drawable", context.getPackageName());
+    }
+
+    /**
      * Convert a JSONArray containing only strings to a String[].
      *
      * @param jsonArray the array to convert.
@@ -236,6 +251,176 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
             array[i] = jsonArray.getString(i);
         }
         return array;
+    }
+
+    /**
+     * Convert a List of Integers to an int[]
+     *
+     * @param list the List to convert
+     * @return an int[] with the same values as the list
+     */
+    private static int[] integerListToArray(List<Integer> list) {
+        int[] array = new int[list.size()];
+
+        for (int i = 0; i < list.size(); i++) {
+            array[i] = list.get(i);
+        }
+        return array;
+    }
+
+    /**
+     * A Builder for a transition from one section to another.
+     * <p/>
+     * It's possible to use the same transition between more than one set of sections.
+     */
+    public static class TransitionBuilder {
+        private List<Integer> mFrames = new ArrayList<>();
+        private int mFrameDuration = DEFAULT_FRAME_DURATION;
+
+        /**
+         * Add a frame to the transition animation.
+         *
+         * @param imageResource The resource id of a image drawable.
+         * @return This Builder object to allow for chaining of calls to set methods
+         */
+        public TransitionBuilder addFrame(int imageResource) {
+            mFrames.add(imageResource);
+            return this;
+        }
+
+        /**
+         * Set the duration that each frame in this section will play.
+         *
+         * @param frameDuration The number of milliseconds that each frame will be displayed.
+         * @return This Builder object to allow for chaining of calls to set methods
+         */
+        public TransitionBuilder setFrameDuration(int frameDuration) {
+            mFrameDuration = frameDuration;
+            return this;
+        }
+
+        private AnimationDrawableLoader build(Context context) {
+            return new AnimationDrawableLoader(context, mFrameDuration, true, integerListToArray(mFrames));
+        }
+    }
+
+    /**
+     * A builder for an animation section.
+     */
+    public static class SectionBuilder {
+        private String mId;
+        private List<Integer> mFrames = new ArrayList<>();
+        private boolean mIsOneshot = DEFAULT_ONESHOT_STATUS;
+        private int mFrameDuration = DEFAULT_FRAME_DURATION;
+        private Map<String, TransitionBuilder> mTransitions = new HashMap<>();
+
+        /**
+         * A constructor that takes the ID of this section.
+         *
+         * @param id The ID of the section
+         */
+        public SectionBuilder(String id) {
+            mId = id;
+        }
+
+        /**
+         * Add a frame to the section animation.
+         *
+         * @param imageResource The resource id of a image drawable.
+         * @return This Builder object to allow for chaining of calls to set methods
+         */
+        public SectionBuilder addFrame(int imageResource) {
+            mFrames.add(imageResource);
+            return this;
+        }
+
+        /**
+         * Set that oneshot status of this section.
+         *
+         * @param isOneshot If true, the animation for this section will pause playing on the final frame.
+         *                  If false, the animation for this section will loop until a new section is transitioned to.
+         * @return This Builder object to allow for chaining of calls to set methods
+         */
+        public SectionBuilder setOneshot(boolean isOneshot) {
+            mIsOneshot = isOneshot;
+            return this;
+        }
+
+        /**
+         * Set the duration that each frame in this section will play.
+         *
+         * @param frameDuration The number of milliseconds that each frame will be displayed
+         * @return This Builder object to allow for chaining of calls to set methods
+         */
+        public SectionBuilder setFrameDuration(int frameDuration) {
+            mFrameDuration = frameDuration;
+            return this;
+        }
+
+        /**
+         * Add an animation that will play when transitioning to this section.
+         *
+         * @param fromId     A section name. When a transition is queued from the named section to this one, this transition will play.
+         * @param transition The transition that will play.
+         * @return This Builder object to allow for chaining of calls to set methods
+         */
+        public SectionBuilder addTransition(String fromId, TransitionBuilder transition) {
+            mTransitions.put(fromId, transition);
+            return this;
+        }
+
+        private AnimationSection build(Context context) {
+            AnimationDrawableLoader loader = new AnimationDrawableLoader(context, mFrameDuration, mIsOneshot, integerListToArray(mFrames));
+            AnimationSection section = new AnimationSection(mId, loader);
+
+            for (Map.Entry<String, TransitionBuilder> entry : mTransitions.entrySet()) {
+                loader = entry.getValue().build(context);
+                section.addTransition(entry.getKey(), loader);
+            }
+
+            return section;
+        }
+    }
+
+    /**
+     * A builder for manually constructing a MultiStateAnimation.
+     */
+    public static class Builder {
+        List<SectionBuilder> mSections = new ArrayList<>();
+        View mView = null;
+
+        /**
+         * Set a view to attach this animation to.
+         *
+         * The background of the view will contain the animation.
+         * @param view The view that will hold the animation.
+         */
+        public Builder(View view) {
+            mView = view;
+        }
+
+        /**
+         * Add an animation section.
+         * @param section The section to add.
+         * @return This Builder object to allow for chaining of calls to set methods
+         */
+        public Builder addSection(SectionBuilder section) {
+            mSections.add(section);
+            return this;
+        }
+
+        /**
+         * Construct a MultiStateAnimation.
+         * @param context A context used to load resources.
+         * @return A new MultiStateAnimation.
+         */
+        public MultiStateAnimation build(Context context) {
+            MultiStateAnimation animation = new MultiStateAnimation(mView);
+            for (SectionBuilder section : mSections) {
+                animation.addSection(section.build(context));
+            }
+            return animation;
+        }
     }
 
     /**
@@ -300,30 +485,36 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
     public static MultiStateAnimation fromJsonResource(Context context, View view, int resid) {
         // Read the resource into a string
         BufferedReader r = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(resid)));
-        StringBuilder builder = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder();
         String line;
         try {
             while ((line = r.readLine()) != null) {
-                builder.append(line);
+                stringBuilder.append(line);
             }
         } catch (IOException ignored) {
             throw new RuntimeException("Cannot Read JSON sync animation Resource");
         }
 
         // Parse
-        MultiStateAnimation drawableSeries = new MultiStateAnimation(view);
+        Builder animationBuilder = new Builder(view);
         try {
-            JSONObject root = new JSONObject(builder.toString());
+            JSONObject root = new JSONObject(stringBuilder.toString());
 
             // The root is a an object with keys that are sequence IDs
             for (Iterator<String> iter = root.keys(); iter.hasNext(); ) {
-                String id = iter.next();
-                JSONObject obj = root.getJSONObject(id);
+                String sectionId = iter.next();
+                JSONObject obj = root.getJSONObject(sectionId);
                 int frameDuration = obj.optInt("frame_duration", DEFAULT_FRAME_DURATION);
                 boolean isOneShot = obj.optBoolean("oneshot", DEFAULT_ONESHOT_STATUS);
                 JSONArray frames = obj.getJSONArray("frames");
-                AnimationDrawableLoader loader = new AnimationDrawableLoader(context, frameDuration, isOneShot, jsonArrayToArray(frames));
-                AnimationSection section = new AnimationSection(id, loader);
+
+                SectionBuilder sectionBuilder = new SectionBuilder(sectionId)
+                        .setFrameDuration(frameDuration)
+                        .setOneshot(isOneShot);
+
+                for (String frame : jsonArrayToArray(frames)) {
+                    sectionBuilder.addFrame(getDrawableResourceId(context, frame));
+                }
 
                 JSONObject transitions_from;
                 if (obj.has("transitions_from")) {
@@ -339,16 +530,20 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
                     JSONObject t_obj = transitions_from.getJSONObject(from);
                     frameDuration = t_obj.optInt("frame_duration", DEFAULT_FRAME_DURATION);
                     frames = t_obj.getJSONArray("frames");
-                    loader = new AnimationDrawableLoader(context, frameDuration, true, jsonArrayToArray(frames));
-                    section.addTransition(from, loader);
+                    TransitionBuilder transitionBuilder = new TransitionBuilder()
+                            .setFrameDuration(frameDuration);
+                    for (String frame : jsonArrayToArray(frames)) {
+                        transitionBuilder.addFrame(getDrawableResourceId(context, frame));
+                    }
+                    sectionBuilder.addTransition(from, transitionBuilder);
                 }
-                drawableSeries.addSection(section);
+                animationBuilder.addSection(sectionBuilder);
             }
         } catch (JSONException ignored) {
             throw new RuntimeException("Invalid sync animation JSON file format.");
         }
 
-        return drawableSeries;
+        return animationBuilder.build(context);
     }
 
     /**

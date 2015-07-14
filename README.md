@@ -44,8 +44,8 @@ or directly in Java code using builders.
         .setFrameDuration(33)
         // Each frame is the name of an image resource. They will be
         // played in the order added.
-        .addFrame(R.drawable.frame_01)
-        .addFrame(R.drawable.frame_02);
+        .addFrame(R.drawable.first_section_01)
+        .addFrame(R.drawable.first_section_02);
 
     // The frames of a transition will be played before playing
     // the normal frames of this section when transitioning. In
@@ -71,7 +71,7 @@ or directly in Java code using builders.
         .setOneshot(true)
         .addTransition("first_section", transitionFromFirst)
         .addTransition("", transitionFromNothing)
-        .addFrame(R.drawable.other_frame_01);
+        .addFrame(R.drawable.second_section_01);
 
     // Animation should be given an View that will be used to display the animation.
     ImageView view = (ImageView) findViewById(R.id.animationImageView);
@@ -85,7 +85,7 @@ or directly in Java code using builders.
 
 ### Defining an animation using JSON
 
-The following JSON file defines the same animation as the above Java code.
+As an alternative to using Java code, you can instead define animations using a JSON file stored as a raw resource. The following JSON file defines the same animation as the above Java code.
 
 ```javascript
 
@@ -94,8 +94,8 @@ The following JSON file defines the same animation as the above Java code.
             "oneshot": false, 
             "frame_duration": 33, 
             "frames": [
-                "frame_01",
-                "frame_02"
+                "first_section_1",
+                "first_section_2"
             ],
     
         }
@@ -103,7 +103,7 @@ The following JSON file defines the same animation as the above Java code.
         "second_section": {
             "oneshot": true,
             "frames": [
-                "other_frame_01"
+                "second_section_01"
             ],
             "transitions_from": {
                 "first_section": {
@@ -135,7 +135,31 @@ Then a `MultiStateAnimationOjbect` can be created in Java:
 
 ```
 
-Included in the repo is a [Python 3 script](scripts/generate_animation_json.py) that can assist in generating the JSON for an animation.
+#### Generating JSON animation files automatically
+
+Included in the repo is a [Python 3 script](scripts/generate_animation_json.py) that can assist in generating the JSON for an animation. To use it, place the frames for each section of the animation in a separate folder, the pass those folders to the script.
+
+For example, to generate the JSON file above, create a folder structure like this:
+
+    .
+    ├── first_section
+    │   ├── first_section_1.png
+    │   └── first_section_2.png
+    ├── first_to_second_transition
+    │   ├── first_to_second_transition_001.png
+    │   ├── first_to_second_transition_002.png
+    │   └── first_to_second_transition_003.png
+    ├── nothing_to_second_transition
+    │   ├── nothing_to_second_001.png
+    │   └── nothing_to_second_002.png
+    └── second_section
+        └── second_section_01.png
+
+These folders can be located anywhere in your filesystem. To generate the JSON file, run the script with the folders as arguments:
+
+    python generate_animation_json.py first_section/ second_section/ first_to_second_transition/ nothing_to_second_transition/ --output=sample_animation.json
+    
+The script will ask a series of questions about each section, and save the resulting json file to `sample_animation.json`. You can run `python generate_animation_json.py --help` to see a full list of arguments
 
 ### Playing animations
 
@@ -148,7 +172,7 @@ from the GUI thread to start playing the animations.
     
 ```
 
-### Sample application
+## Sample application
 
 See the [main Activity](samples/src/main/java/com/getkeepsafe/android/multistateanimation/samples/ThreeStateSampleActivity.java) and the [json animation definition](samples/res/raw/sample_animation.json)
  in the [sample application](samples/) for an example.

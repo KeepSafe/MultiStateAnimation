@@ -29,9 +29,13 @@ import java.util.Map;
  * @author AJ Alt
  */
 public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimationFinishedListener {
-    private final static String TAG = "MultiStateAnimation";
     public static final int DEFAULT_FRAME_DURATION = 33;
     public static final boolean DEFAULT_ONESHOT_STATUS = true;
+
+    /**
+     * Cache to prevent duplicate json reads; map of resource id -> builder.
+     */
+    private static final Map<Integer, Builder> mBuilderCache = new HashMap<>();
 
     /**
      * A class that creates an AnimationDrawable from a list of frames.
@@ -483,6 +487,11 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
      * @throws RuntimeException
      */
     public static MultiStateAnimation fromJsonResource(Context context, View view, int resid) {
+        // Use the cached builder, if one exists.
+        if (mBuilderCache.containsKey(resid)) {
+            return mBuilderCache.get(resid).build(context);
+        }
+
         // Read the resource into a string
         BufferedReader r = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(resid)));
         StringBuilder stringBuilder = new StringBuilder();
@@ -543,6 +552,7 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
             throw new RuntimeException("Invalid sync animation JSON file format.");
         }
 
+        mBuilderCache.put(resid, animationBuilder);
         return animationBuilder.build(context);
     }
 
@@ -552,10 +562,9 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
      * @param context the Application context.
      * @param resid   The resource ID the the raw json document.
      * @return A new MultiStateAnimation instance.
-     * @throws JSONException
-     * @throws IOException
+     * @throws RuntimeException
      */
-    public static MultiStateAnimation fromJsonResource(Context context, int resid) throws JSONException, IOException {
+    public static MultiStateAnimation fromJsonResource(Context context, int resid)  {
         return MultiStateAnimation.fromJsonResource(context, null, resid);
     }
 
@@ -698,7 +707,7 @@ public class MultiStateAnimation implements NotifyingAnimationDrawable.OnAnimati
 
     /**
      * Clear any currently playing animation. This will cause a "" transition to
-     * be played before the next queued section, if one was defined for .
+     * be played before the next queued section, if one was defined.
      */
     public void clearAnimation() {
         if (mCurrentDrawable != null) {

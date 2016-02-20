@@ -16,11 +16,11 @@ animation once the current section is complete.
 ## Installation
 
 Add the following dependency to your gradle build file:
-
+```gradle
     dependencies {  
         compile 'com.getkeepsafe.android.multistateanimation:library:1.1.1'
     }
-
+```
 ## Usage
 Each animation consists of a series of states. A state has some metadata and a list
 of frames to draw. A state can also define transitions from other states. A
@@ -140,7 +140,7 @@ Then a `MultiStateAnimationOjbect` can be created in Java:
 Included in the repo is a [Python 3 script](scripts/generate_animation_json.py) that can assist in generating the JSON for an animation. To use it, place the frames for each section of the animation in a separate folder, the pass those folders to the script.
 
 For example, to generate the JSON file above, create a folder structure like this:
-
+```bash
     .
     ├── first_section
     │   ├── first_section_1.png
@@ -154,11 +154,11 @@ For example, to generate the JSON file above, create a folder structure like thi
     │   └── nothing_to_second_002.png
     └── second_section
         └── second_section_01.png
-
+```
 These folders can be located anywhere in your filesystem. To generate the JSON file, run the script with the folders as arguments:
-
+```bash
     python generate_animation_json.py first_section/ second_section/ first_to_second_transition/ nothing_to_second_transition/ --output=sample_animation.json
-    
+```
 The script will ask a series of questions about each section, and save the resulting json file to `sample_animation.json`. You can run `python generate_animation_json.py --help` to see a full list of arguments
 
 ### Playing animations
@@ -183,7 +183,7 @@ Check out [the Javadocs](http://keepsafe.github.io/MultiStateAnimation/) for mor
 
 ## License
 
-    Copyright 2015 KeepSafe Inc.
+    Copyright 2016 KeepSafe Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
